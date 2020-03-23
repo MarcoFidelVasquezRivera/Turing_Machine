@@ -144,6 +144,4 @@ public class TuringMachine {
 		c2=null;
 		nTapes=0;
 	}
-
-	
 }
