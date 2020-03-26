@@ -27,7 +27,8 @@ public class TuringMachine {
 					c0.setPreviusTape(t);
 					c0=t;	
 					nTapes++;
-					if(nTapes%2==0) {
+					
+					if((nTapes%2)==0) {
 						c1 = c1.getPreviusTape();
 					}
 				}
@@ -42,24 +43,27 @@ public class TuringMachine {
 				}else {
 					Tape prev = c1.getPreviusTape();
 					Tape next = c1.getNextTape();
-					if(prev==null) {
+					if(nTapes==1) {
 						t.setNextTape(c1);
 						c1.setPreviusTape(t);
 						c0 = t;
 						c1 = t;	
 						nTapes++;
 					}else {
-						if(nTapes%2==0) {
+						if((nTapes%2)==0) {
 							t.setPreviusTape(c1);
 							t.setNextTape(next);
+							next.setPreviusTape(t);
 							c1.setNextTape(t);
+							c1 = t;
 							
 							nTapes++;
-							
 						}else {
+							prev.setNextTape(t);
 							t.setPreviusTape(prev);
 							t.setNextTape(c1);
 							c1.setPreviusTape(t);
+							c1 = t;
 							
 							nTapes++;
 						}
@@ -78,7 +82,7 @@ public class TuringMachine {
 					c2.setNextTape(t);
 					c2=t;	
 					nTapes++;
-					if(nTapes%2!=0) {
+					if((nTapes%2)!=0) {
 						c1 = c1.getNextTape();
 					}
 				}
@@ -89,7 +93,8 @@ public class TuringMachine {
 	public char readTape(char head) {
 		char letter='#';
 		
-		switch(head) {
+		if(c0!=null) {
+			switch(head) {
 			case '0':
 				letter = c0.getLetter();
 				break;
@@ -99,43 +104,61 @@ public class TuringMachine {
 			case '2':
 				letter = c2.getLetter();
 				break;
+			}
 		}
-		
 		return letter;
 	}
 	
 	public void removeTape(char head) {
 
-		switch(head) {
-			case '0':
-				if(c0!=null) {
-				c0 = c0.getNextTape();
-				c0.setPreviusTape(null);
-				}
-				break;
-			case '1':
-				if(c1!=null) {
-					Tape prev = c1.getPreviusTape();
-					Tape next = c1.getNextTape();
-					
-					prev.setNextTape(next);
-					next.setPreviusTape(prev);
-					
-					if(nTapes%2==0) {
-						c1 = next;
-					}else {
-						c1 = prev;
+		if(nTapes==1) {
+			resetValues();
+		}else {
+			switch(head) {
+			
+				case '0':
+					if(c0!=null) {
+						if((nTapes%2)==0) {
+							c1 = c1.getNextTape();
+						}
+						c0 = c0.getNextTape();
+						c0.setPreviusTape(null);
+						nTapes--;
 					}
-				}
-				break;
-			case '2':
-				if(c2!=null) {
-				c2 = c2.getPreviusTape();
-				c2.setNextTape(null);
-				}
-				break;
+					break;
+				case '1':
+					if(c1!=null) {
+						if(nTapes==2) {
+							c0 = c0.getNextTape();
+							c1 = c1.getNextTape();
+							c0.setPreviusTape(null);
+						}else {
+							Tape prev = c1.getPreviusTape();
+							Tape next = c1.getNextTape();
+							prev.setNextTape(next);
+							next.setPreviusTape(prev);
+							
+							if((nTapes%2)==0) {
+								c1 = next;
+							}else {
+								c1 = prev;
+							}
+						}
+						nTapes--;
+					}
+					break;
+				case '2':
+					if(c2!=null) {
+						if((nTapes%2)!=0) {
+							c1 = c1.getPreviusTape();
+						}
+						c2 = c2.getPreviusTape();
+						c2.setNextTape(null);
+						nTapes--;
+					}
+					break;
+			}
 		}
-		nTapes--;
 	}
 	
 	public void resetValues() {
@@ -143,6 +166,17 @@ public class TuringMachine {
 		c1=null;
 		c2=null;
 		nTapes=0;
+	}
+	
+	public String toString() {
+		String message;
+		
+		message = String.valueOf(c0)+"|";
+		message+= String.valueOf(c1)+"|";
+		message+= String.valueOf(c2);
+		message+= "   "+nTapes;
+	
+		return message;
 	}
 	
 }
